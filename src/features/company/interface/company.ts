@@ -4,4 +4,5 @@ export interface ICompany {
     uuid:  string
     name: string
     branches: IBranch[]
+    subscribe?: boolean
 }
