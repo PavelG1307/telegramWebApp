@@ -23,7 +23,7 @@ export class CompanyService {
             address: 'г. Рязань, ул. Есенина, д. 56'
           },
           {
-            uuid: 'bad92e9b-ef1b-4209-ae66-b3d97b78b90e',
+            uuid: '66b91e42-02f5-4357-a36b-582c743a549f',
             name: 'ДНС на Солотчинском шоссе',
             address: 'г. Рязань, Солотчинское шоссе, д. 76'
           },
@@ -32,7 +32,18 @@ export class CompanyService {
       {
         uuid: 'd40ba25f-70d3-4856-9ebe-af1ee01294b7',
         name: 'Элекс',
-        branches: []
+        branches: [
+          {
+            uuid: '026cb80f-23ff-44b7-b364-ee1373171f8a',
+            name: 'Элекс на ул. Гоголя',
+            address: 'г. Рязань, ул. Гоголя, д. 15А'
+          },
+          {
+            uuid: '6bd22542-0506-4756-8e4f-b2803669d737',
+            name: 'Элекс на ул. Полетаева',
+            address: 'г. Рязань, ул. Полетаева, д. 23'
+          }
+        ]
       }
     ]
   }
@@ -47,7 +58,7 @@ export class CompanyService {
     const user = this.user[userId]
     const companyDTO = this.companies.map(company => {
       company.branches = company.branches.map(branch => {
-        branch.subscribe = branch.uuid in user.subscribe
+        branch.subscribe = user.subscribe.includes(branch.uuid)
         return branch
       })
       return company
@@ -62,10 +73,10 @@ export class CompanyService {
         subscribe: []
       }
     }
-    if (companyUUID in this.user[userId].subscribe) {
+    if (this.user[userId].subscribe.includes(companyUUID)) {
       new HttpException('Already subscribe', HttpStatus.BAD_REQUEST)
     }
-    this.user[userId].subscribe.push(companyUUID)
+    this.user[userId].subscribe.push(companyUUID)    
     return true
   }
 
@@ -73,7 +84,7 @@ export class CompanyService {
     if (!(userId in this.user)) {
       new HttpException('User undefined', HttpStatus.BAD_REQUEST)
     }
-    if (!(userId in this.user[userId].subscribe)) {
+    if (!(this.user[userId].subscribe.includes(companyUUID))) {
       new HttpException('Already unsubscribe', HttpStatus.BAD_REQUEST)
     }
     const index = this.user[userId].subscribe.indexOf(companyUUID)

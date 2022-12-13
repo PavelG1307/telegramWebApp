@@ -1,4 +1,4 @@
 export interface IUser {
-    id: number,
-    subscribe: string[]
+  id: number,
+  subscribe: string[]
 }
