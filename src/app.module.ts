@@ -1,12 +1,14 @@
 import { Module } from '@nestjs/common';
-import { ServeStaticModule } from '@nestjs/serve-static';
-import { join } from 'path';
+import { ConfigModule } from '@nestjs/config'
+import { getEnvFilePath } from './core/utils';
+import { CompanyModule } from './features/company/company.module';
 
 @Module({
   imports: [
-    ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'static'),
-    }),
+    ConfigModule.forRoot({
+    envFilePath: getEnvFilePath()
+  }),
+    CompanyModule
   ],
   controllers: [],
   providers: [],

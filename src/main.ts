@@ -1,9 +1,13 @@
+import helmet from 'helmet'
+import * as compression from 'compression'
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { corsOptions } from './core/config/cors';
 import { EXIT_CODES } from './core/constants';
 import { initSwagger } from './core/lib/swagger';
+import { join } from 'path';
+import * as express from 'express';
 
 async function bootstrap() {
   try {
@@ -11,10 +15,11 @@ async function bootstrap() {
     app.useGlobalPipes(new ValidationPipe())
     app.enableCors(corsOptions)
     app.setGlobalPrefix(process.env.API_PREFIX)
-
+    console.log(process.env.API_PREFIX)
+    
     app.use(compression())
     app.use(helmet())
-
+    app.use(express.static(join(__dirname, '../static')))
     initSwagger(app)
 
     await app.listen(process.env.PORT || 3000)
@@ -24,11 +29,3 @@ async function bootstrap() {
   }
 }
 bootstrap();
-function compression(): any {
-  throw new Error('Function not implemented.');
-}
-
-function helmet(): any {
-  throw new Error('Function not implemented.');
-}
-
