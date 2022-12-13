@@ -1,11 +1,13 @@
-import { Injectable } from "@nestjs/common"
+import { HttpException, HttpStatus, Injectable } from "@nestjs/common"
+import { IUser } from "../user/interface"
 import { ICompany } from './interface'
 @Injectable()
 export class CompanyService {
-  company: ICompany[]
+  companies: ICompany[] = []
+  user: { [id: number]: IUser} = {}
 
   constructor() {
-    this.company = [
+    this.companies = [
       {
         uuid: 'c01d2129-31ea-41a3-9938-55f4da8d3687',
         name: 'ДНС',
@@ -35,8 +37,47 @@ export class CompanyService {
     ]
   }
 
-  async get() {
-    return []
+  async get(userId: number): Promise<ICompany[]> {
+    if (!(userId in this.user)) {
+      this.user[userId] = {
+        id: userId,
+        subscribe: []
+      }
+    }
+    const user = this.user[userId]
+    const companyDTO = this.companies.map(company => {
+      company.branches = company.branches.map(branch => {
+        branch.subscribe = branch.uuid in user.subscribe
+        return branch
+      })
+      return company
+    })
+    return companyDTO
   }
 
+  async subscribe(companyUUID: string, userId: number): Promise<boolean | never> {
+    if (!(userId in this.user)) {
+      this.user[userId] = {
+        id: userId,
+        subscribe: []
+      }
+    }
+    if (companyUUID in this.user[userId].subscribe) {
+      new HttpException('Already subscribe', HttpStatus.BAD_REQUEST)
+    }
+    this.user[userId].subscribe.push(companyUUID)
+    return true
+  }
+
+  async unsubscribe(companyUUID: string, userId: number): Promise<boolean | never> {
+    if (!(userId in this.user)) {
+      new HttpException('User undefined', HttpStatus.BAD_REQUEST)
+    }
+    if (!(userId in this.user[userId].subscribe)) {
+      new HttpException('Already unsubscribe', HttpStatus.BAD_REQUEST)
+    }
+    const index = this.user[userId].subscribe.indexOf(companyUUID)
+    this.user[userId].subscribe.splice(index, 1);
+    return true
+  }
 }
